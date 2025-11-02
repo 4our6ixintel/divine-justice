@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate.dls Blog Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        #chat-box {
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+
+        .chat-message {
+            margin-bottom: 10px;
+        }
+
+        .chat-message strong {
+            color: #2c3e50;
+        }
+
+        #chat-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        #username,
+        #message {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            flex: 1;
+        }
+
+        #send-btn {
+            padding: 10px 15px;
+            border: none;
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #send-btn:hover {
+            background-color: #34495e;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Ultimate.dls Blog Chat</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="blog.html">Blog</a>
+            <a href="match.html">Matches</a>
+            <a href="tables.html">Tables</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Chat with Other DLS Fans</h2>
+        <div id="chat-box"></div>
+
+        <form id="chat-form">
+            <input type="text" id="username" placeholder="Your Name" required>
+            <input type="text" id="message" placeholder="Type your message" required>
+            <button type="submit" id="send-btn">Send</button>
+        </form>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const chatForm = document.getElementById('chat-form');
+        const usernameInput = document.getElementById('username');
+        const messageInput = document.getElementById('message');
+
+        // Load existing messages from localStorage
+        let messages = JSON.parse(localStorage.getItem('dlsChatMessages')) || [];
+
+        function renderMessages() {
+            chatBox.innerHTML = '';
+            messages.forEach(msg => {
+                const div = document.createElement('div');
+                div.classList.add('chat-message');
+                div.innerHTML = `<strong>${msg.username}:</strong> ${msg.text}`;
+                chatBox.appendChild(div);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        renderMessages();
+
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = usernameInput.value.trim();
+            const text = messageInput.value.trim();
+
+            if (!username || !text) return;
+
+            const newMessage = { username, text };
+            messages.push(newMessage);
+
+            // Save to localStorage
+            localStorage.setItem('dlsChatMessages', JSON.stringify(messages));
+
+            // Clear input fields
+            messageInput.value = '';
+            renderMessages();
+        });
+    </script>
+</body>
+
+</html>

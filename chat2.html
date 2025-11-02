@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ultimate.dls Chat Room</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; }
+  header { background: #2c3e50; color: white; text-align: center; padding: 20px; position: relative; }
+  #logoutBtn { position: absolute; right: 20px; top: 20px; background: #e74c3c; border: none; padding: 8px 15px; color: white; border-radius: 5px; cursor: pointer; }
+  #logoutBtn:hover { background: #c0392b; }
+  .container { width: 90%; max-width: 700px; margin: 20px auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+  #chat-box { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px; background: #fafafa; }
+  .chat-message { margin-bottom: 10px; padding: 8px; border-radius: 5px; background: #ecf0f1; }
+  .chat-message strong { color: #2c3e50; }
+  .timestamp { font-size: 0.8em; color: #7f8c8d; margin-left: 5px; }
+  #chat-form { display: flex; gap: 10px; margin-top: 10px; }
+  input, button { border-radius: 5px; padding: 10px; }
+  input { flex: 1; border: 1px solid #ccc; }
+  #send-btn { background: #2c3e50; color: white; border: none; cursor: pointer; }
+  #send-btn:hover { background: #34495e; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Ultimate.dls Chat Room</h1>
+  <button id="logoutBtn">Logout</button>
+</header>
+
+<div class="container">
+  <div id="chat-box"></div>
+  <form id="chat-form">
+    <input type="text" id="username" placeholder="Your Name" required />
+    <input type="text" id="message" placeholder="Type a message" required />
+    <button type="submit" id="send-btn">Send</button>
+  </form>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBdK_tiTsYhX27IsdjBnBRJ1a-4Eanoe8g",
+    authDomain: "ultimatedlschat.firebaseapp.com",
+    databaseURL: "https://ultimatedlschat-default-rtdb.firebaseio.com",
+    projectId: "ultimatedlschat",
+    storageBucket: "ultimatedlschat.firebasestorage.app",
+    messagingSenderId: "485655960703",
+    appId: "1:485655960703:web:b6a97068cf5ebf1e98734a",
+    measurementId: "G-SDE2YCCMZW"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const logoutBtn = document.getElementById("logoutBtn");
+  logoutBtn.onclick = () => signOut(auth);
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) window.location.href = "index.html";
+  });
+
+  const chatBox = document.getElementById("chat-box");
+  const form = document.getElementById("chat-form");
+  const username = document.getElementById("username");
+  const message = document.getElementById("message");
+
+  const messagesRef = ref(db, "messages");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = message.value.trim();
+    if (!username.value.trim() || !text) return;
+
+    const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
+    push(messagesRef, { username: username.value.trim(), text, time: timeStr });
+    message.value = "";
+  });
+
+  onChildAdded(messagesRef, (snapshot) => {
+    const msg = snapshot.val();
+    const div = document.createElement("div");
+    div.className = "chat-message";
+    div.innerHTML = `<strong>${msg.username}</strong>: ${msg.text} <span class="timestamp">${msg.time}</span>`;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+</script>
+</body>
+</html>

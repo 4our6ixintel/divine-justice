@@ -6,19 +6,38 @@
 <title>Ultimate.dls Chat Room</title>
 <style>
     body { font-family: Arial; background: #f4f4f4; margin: 0; }
-    header { background: #2c3e50; color: white; text-align: center; padding: 20px; }
+    header { background: #2c3e50; color: white; text-align: center; padding: 20px; position: relative; }
     nav a { color: white; margin: 0 15px; text-decoration: none; font-weight: bold; }
+    .logout-btn { position: absolute; right: 15px; top: 15px; background: #e74c3c; color: white; border: none; border-radius: 5px; padding: 8px 15px; cursor: pointer; }
+    .logout-btn:hover { background: #c0392b; }
     .container { width: 90%; max-width: 700px; margin: 20px auto; background: #fff; padding: 15px; border-radius: 10px; }
-    #chat-box { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #fafafa; border-radius: 5px; }
-    .chat-message { margin-bottom: 10px; }
-    .chat-message strong { color: #2c3e50; }
-    #chat-form { display: flex; gap: 10px; margin-top: 10px; }
-    #username, #message { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+    #whatsapp-placeholder { height: 50px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; background: #e0e0e0; border-radius: 5px; font-weight: bold; color: #2c3e50; }
+    #chat-box { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #fafafa; border-radius: 5px; margin-top: 10px; }
+    .chat-message { margin-bottom: 10px; display: flex; align-items: center; }
+    .chat-message img { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; }
+    .chat-message strong { margin-right: 5px; }
+    #chat-form { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+    #username, #team, #message { flex: 1; min-width: 100px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
     #send-btn { padding: 10px 15px; border: none; background: #2c3e50; color: white; border-radius: 5px; cursor: pointer; }
     #send-btn:hover { background: #34495e; }
+
+    /* Login modal */
+    #loginModal {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center;
+    }
+    #loginBox {
+        background: #fff; padding: 30px; border-radius: 10px; width: 90%; max-width: 400px;
+        text-align: center; box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    #loginBox input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
+    #loginBox button { width: 48%; padding: 10px; margin: 5px 1%; border: none; border-radius: 5px; cursor: pointer; }
+    #loginBtn { background: #2c3e50; color: white; }
+    #signupBtn { background: #27ae60; color: white; }
 </style>
 </head>
 <body>
+
 <header>
     <h1>Ultimate.dls Chat Room</h1>
     <nav>
@@ -27,63 +46,115 @@
         <a href="match.html">Matches</a>
         <a href="tables.html">Tables</a>
     </nav>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
 </header>
 
 <div class="container">
+
+    <div id="whatsapp-placeholder">WhatsApp Group Link Here</div>
+
     <div id="chat-box"></div>
+
     <form id="chat-form">
         <input type="text" id="username" placeholder="Your Name" required>
+        <select id="team">
+            <option value="">Select Team (Optional)</option>
+            <option value="Ssali.Galaxy">Ssali.Galaxy</option>
+            <option value="kato.Jamie">kato.Jamie</option>
+            <option value="paul.liverpool">paul.liverpool</option>
+            <option value="katende.mcdamasen">katende.mcdamasen</option>
+            <option value="hytham.pagoda">hytham.pagoda</option>
+            <option value="jeremiah.ten united">jeremiah.ten united</option>
+            <option value="Bbosa.man u">Bbosa.man u</option>
+            <option value="Lusiba.AFC gunners">Lusiba.AFC gunners</option>
+            <option value="julius.man city">julius.man city</option>
+            <option value="Talemwa.talex">Talemwa.talex</option>
+        </select>
         <input type="text" id="message" placeholder="Type a message" required>
         <button type="submit" id="send-btn">Send</button>
     </form>
 </div>
 
-<!-- Firebase Scripts -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<!-- Login Modal -->
+<div id="loginModal">
+    <div id="loginBox">
+        <h2>Login to Ultimate.dls</h2>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <div>
+            <button id="loginBtn">Login</button>
+            <button id="signupBtn">Sign Up</button>
+        </div>
+    </div>
+</div>
 
-<script>
-    // Step 1: Your Firebase config
-    const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT.firebaseapp.com",
-        databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-        projectId: "YOUR_PROJECT",
-        storageBucket: "YOUR_PROJECT.appspot.com",
-        messagingSenderId: "YOUR_MESSAGING_ID",
-        appId: "YOUR_APP_ID"
-    };
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-    // Step 2: Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+// Firebase Config
+const firebaseConfig = {
+    apiKey: "AIzaSyBdK_tiTsYhX27IsdjBnBRJ1a-4Eanoe8g",
+    authDomain: "ultimatedlschat.firebaseapp.com",
+    databaseURL: "https://ultimatedlschat-default-rtdb.firebaseio.com",
+    projectId: "ultimatedlschat",
+    storageBucket: "ultimatedlschat.firebasestorage.app",
+    messagingSenderId: "485655960703",
+    appId: "1:485655960703:web:b6a97068cf5ebf1e98734a",
+    measurementId: "G-SDE2YCCMZW"
+};
 
-    const chatBox = document.getElementById('chat-box');
-    const chatForm = document.getElementById('chat-form');
-    const usernameInput = document.getElementById('username');
-    const messageInput = document.getElementById('message');
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-    // Step 3: Listen for new messages
-    const messagesRef = db.ref('messages');
-    messagesRef.on('child_added', snapshot => {
-        const msg = snapshot.val();
-        const div = document.createElement('div');
-        div.classList.add('chat-message');
-        div.innerHTML = `<strong>${msg.username}:</strong> ${msg.text}`;
-        chatBox.appendChild(div);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    });
+// DOM elements
+const chatBox = document.getElementById("chat-box");
+const chatForm = document.getElementById("chat-form");
+const usernameInput = document.getElementById("username");
+const teamInput = document.getElementById("team");
+const messageInput = document.getElementById("message");
+const loginModal = document.getElementById("loginModal");
 
-    // Step 4: Send message
-    chatForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const username = usernameInput.value.trim();
-        const text = messageInput.value.trim();
-        if (!username || !text) return;
+// Team avatars/colors
+const teamData = {
+    "Ssali.Galaxy": { color: "#ff5733", avatar: "https://i.imgur.com/1Fz5m6X.png" },
+    "kato.Jamie": { color: "#33a1ff", avatar: "https://i.imgur.com/oTnYkqZ.png" },
+    "paul.liverpool": { color: "#ff3333", avatar: "https://i.imgur.com/2hGkVgP.png" },
+    "katende.mcdamasen": { color: "#33cc33", avatar: "https://i.imgur.com/3v7h0wT.png" },
+    "hytham.pagoda": { color: "#ff33ff", avatar: "https://i.imgur.com/4RkT9zD.png" },
+    "jeremiah.ten united": { color: "#ff9900", avatar: "https://i.imgur.com/5X7yYdO.png" },
+    "Bbosa.man u": { color: "#cc0000", avatar: "https://i.imgur.com/6YhF1vA.png" },
+    "Lusiba.AFC gunners": { color: "#0066ff", avatar: "https://i.imgur.com/7e0kqLT.png" },
+    "julius.man city": { color: "#00cccc", avatar: "https://i.imgur.com/8Qm3TZv.png" },
+    "Talemwa.talex": { color: "#9900cc", avatar: "https://i.imgur.com/9y5T8hS.png" },
+    "default": { color: "#2c3e50", avatar: "https://i.imgur.com/2P8mYhG.png" }
+};
 
-        messagesRef.push({ username, text });
-        messageInput.value = '';
-    });
-</script>
-</body>
-</html>
+// Login / Signup
+document.getElementById("loginBtn").onclick = async () => {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+        loginModal.style.display = "none";
+    } catch (err) {
+        alert("Login failed: " + err.message);
+    }
+};
+
+document.getElementById("signupBtn").onclick = async () => {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("Account created! You can now log in.");
+    } catch (err) {
+        alert("Signup failed: " + err.message);
+    }
+};
+
+// Auth state
+onAuthStateChanged(auth, (user) => {
+    if (use

@@ -3,43 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultimate.dls Blog & Chat Room</title>
+<title>Ultimate.dls Chatroom</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; }
-  header { background: #2c3e50; color: white; text-align: center; padding: 20px; position: relative; }
-  nav a { color: white; margin: 0 10px; text-decoration: none; font-weight: bold; }
-  .container { width: 90%; max-width: 700px; margin: 20px auto; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+  /* RESET & BASE */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; color: #333; }
+  a { text-decoration: none; color: inherit; }
 
-  /* Chat */
-  #chat-box { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #fafafa; border-radius: 5px; }
-  .chat-message { margin-bottom: 10px; padding: 8px; border-radius: 5px; background: #ecf0f1; display: flex; align-items: center; gap: 10px; }
-  .chat-message img { width: 35px; height: 35px; border-radius: 50%; }
-  .chat-message strong { color: #2c3e50; }
-  .timestamp { font-size: 0.8em; color: #7f8c8d; margin-left: 5px; }
+  /* HEADER */
+  header { background: linear-gradient(90deg,#2c3e50,#4c5c70); color: #fff; padding: 20px; text-align: center; position: relative; }
+  header h1 { font-size: 1.8em; margin-bottom: 10px; }
+  nav a { margin: 0 12px; font-weight: 600; transition: 0.3s; }
+  nav a:hover { color: #f39c12; }
 
-  #chat-form { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-  #username, #message { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
-  #send-btn { padding: 10px 15px; border: none; background: #2c3e50; color: white; border-radius: 5px; cursor: pointer; }
-  #send-btn:hover { background: #34495e; }
-
-  #logoutBtn { position: absolute; right: 20px; top: 20px; background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+  /* LOGOUT BUTTON */
+  #logoutBtn { position: absolute; right: 20px; top: 20px; background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
   #logoutBtn:hover { background: #c0392b; }
 
-  /* Login Modal */
-  #loginModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 10; }
-  .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; text-align: center; }
-  input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-  button { cursor: pointer; }
+  /* CONTAINER */
+  .container { max-width: 800px; margin: 30px auto; background: #fff; padding: 25px; border-radius: 15px; box-shadow: 0 6px 18px rgba(0,0,0,0.1); }
 
-  /* Blog Info */
-  .blog-info { margin-bottom: 20px; text-align: center; }
-  .blog-info h2 { color: #2c3e50; margin-bottom: 10px; }
-  .blog-info p { color: #555; }
+  /* BLOG INFO */
+  .blog-info { margin-bottom: 25px; text-align: center; }
+  .blog-info h2 { font-size: 1.8em; margin-bottom: 12px; color: #2c3e50; }
+  .blog-info p { color: #555; line-height: 1.6; }
 
-  @media (max-width: 600px) {
+  /* CHAT BOX */
+  #chat-box { height: 450px; overflow-y: auto; border-radius: 12px; background: #f9f9f9; padding: 15px; border: 1px solid #ddd; }
+  .chat-message { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; padding: 10px; background: #edf2f7; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+  .chat-message img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+  .chat-message strong { color: #2c3e50; }
+  .timestamp { font-size: 0.75em; color: #7f8c8d; margin-left: 8px; }
+
+  /* CHAT FORM */
+  #chat-form { display: flex; gap: 12px; margin-top: 15px; flex-wrap: wrap; }
+  #message { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #ccc; font-size: 1em; }
+  #send-btn { padding: 12px 20px; border: none; background: #2c3e50; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+  #send-btn:hover { background: #34495e; }
+
+  /* LOGIN MODAL */
+  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 10; }
+  .modal-content { background: #fff; padding: 30px; border-radius: 15px; text-align: center; width: 90%; max-width: 380px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+  .modal-content input { width: 100%; margin-bottom: 15px; padding: 12px; border-radius: 10px; border: 1px solid #ccc; font-size: 1em; }
+  .modal-content button { width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; border: none; background: #2c3e50; color: white; transition: 0.3s; margin-bottom: 10px; cursor: pointer; }
+  .modal-content button:hover { background: #34495e; }
+
+  /* RESPONSIVE */
+  @media(max-width:600px){
     header h1 { font-size: 1.4em; }
-    nav a { display: block; margin: 5px 0; }
+    nav a { display: block; margin: 6px 0; }
     #chat-form { flex-direction: column; }
   }
 </style>
@@ -47,50 +59,51 @@
 <body>
 
 <header>
-  <h1>Ultimate.dls Blog & Chat Room</h1>
+  <h1>Ultimate.dls Chatroom</h1>
+  <nav>
 <nav class="nav">
   <a href="index.html">Home</a>
   <a href="blog.html">Blog</a>
   <a href="match.html">Matches</a>
   <a href="tables.html">Tables</a>
   <a href="login.html">Login</a>
+  <a href="signup.html">Sign Up</a>
 </nav>
 
+  </nav>
   <button id="logoutBtn" style="display:none;">Logout</button>
 </header>
 
 <div class="container">
   <div class="blog-info">
-    <h2>Welcome to the Ultimate.dls Community!</h2>
-    <p>Discuss DLS strategies, post-match reactions, and share your Ultimate Team progress with others.</p>
-    <p>Stay updated with league highlights and connect with your fellow players in real time.</p>
+    <h2>Welcome to Ultimate.dls Community!</h2>
+    <p>Discuss DLS strategies, post-match reactions, and share your Ultimate Team progress with others. Stay connected and updated with league highlights in real time.</p>
   </div>
 
   <div id="chat-box"></div>
   <form id="chat-form">
-    <input type="text" id="username" placeholder="Your Team Name" required>
-    <input type="text" id="message" placeholder="Type your message" required>
+    <input type="text" id="message" placeholder="Type your message..." required>
     <button type="submit" id="send-btn">Send</button>
   </form>
 </div>
 
-<!-- Login Modal -->
-<div id="loginModal">
+<!-- LOGIN MODAL -->
+<div class="modal" id="loginModal">
   <div class="modal-content">
     <h2>Login to Ultimate.dls Chat</h2>
     <input type="email" id="email" placeholder="Email" required>
     <input type="password" id="password" placeholder="Password" required>
     <button id="loginBtn">Login</button>
+    <p>Don't have an account?</p>
     <button id="signupBtn">Sign Up</button>
   </div>
 </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-  import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-  // Firebase Config
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyBdK_tiTsYhX27IsdjBnBRJ1a-4Eanoe8g",
     authDomain: "ultimatedlschat.firebaseapp.com",
@@ -101,90 +114,75 @@
     appId: "1:485655960703:web:b6a97068cf5ebf1e98734a",
     measurementId: "G-SDE2YCCMZW"
   };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getDatabase(app);
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
 
   const chatBox = document.getElementById('chat-box');
   const chatForm = document.getElementById('chat-form');
-  const usernameInput = document.getElementById('username');
   const messageInput = document.getElementById('message');
   const loginModal = document.getElementById('loginModal');
   const logoutBtn = document.getElementById('logoutBtn');
+  let currentUser = null;
 
-  // Team logos (optional avatar simulation)
-  const teamAvatars = {
-    "Ssali.Galaxy": "https://i.imgur.com/YOUR_LOGO.png",
-    "kato.Jamie": "https://i.imgur.com/YOUR_LOGO.png",
-    "paul.liverpool": "https://i.imgur.com/YOUR_LOGO.png",
-    "hytham.pagoda": "https://i.imgur.com/YOUR_LOGO.png",
-  };
+  function formatTime(timestamp){
+    const d = new Date(timestamp);
+    let h = d.getHours();
+    const m = d.getMinutes().toString().padStart(2,'0');
+    const ampm = h>=12?'PM':'AM';
+    h = h%12 || 12;
+    return `${h}:${m} ${ampm}`;
+  }
 
-  // Auth handling
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      loginModal.style.display = "none";
-      logoutBtn.style.display = "block";
+  auth.onAuthStateChanged(user=>{
+    if(user){
+      currentUser=user;
+      loginModal.style.display='none';
+      logoutBtn.style.display='block';
+      loadMessages();
     } else {
-      loginModal.style.display = "flex";
-      logoutBtn.style.display = "none";
+      loginModal.style.display='flex';
+      logoutBtn.style.display='none';
     }
   });
 
-  logoutBtn.onclick = () => signOut(auth);
+  logoutBtn.onclick=()=>auth.signOut();
 
-  // Login
-  document.getElementById("loginBtn").onclick = async () => {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      alert("Welcome back!");
-    } catch (err) {
-      alert("Login failed: " + err.message);
-    }
-  };
+  document.getElementById('loginBtn').onclick=async()=>{
+    const email=document.getElementById('email').value;
+    const password=document.getElementById('password').value;
+    try{ await auth.signInWithEmailAndPassword(email,password); alert('Logged in!'); } 
+    catch(e){ alert(e.message); }
+  }
 
-  // Signup
-  document.getElementById("signupBtn").onclick = async () => {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      alert("Account created! You can now log in.");
-    } catch (err) {
-      alert("Signup failed: " + err.message);
-    }
-  };
+  document.getElementById('signupBtn').onclick=async()=>{
+    const email=document.getElementById('email').value;
+    const password=document.getElementById('password').value;
+    try{ await auth.createUserWithEmailAndPassword(email,password); alert('Account created!'); } 
+    catch(e){ alert(e.message); }
+  }
 
-  // Chat functionality
-  const messagesRef = ref(db, "messages");
+  function loadMessages(){
+    const messagesRef=db.ref('messages');
+    messagesRef.off();
+    messagesRef.on('child_added',snap=>{
+      const msg=snap.val();
+      const div=document.createElement('div');
+      div.classList.add('chat-message');
+      div.innerHTML=`<strong>${msg.username||"Anonymous"}:</strong> ${msg.text} <span class="timestamp">${formatTime(msg.timestamp)}</span>`;
+      chatBox.appendChild(div);
+      chatBox.scrollTop=chatBox.scrollHeight;
+    });
+  }
 
-  chatForm.addEventListener("submit", (e) => {
+  chatForm.addEventListener('submit',e=>{
     e.preventDefault();
-    const username = usernameInput.value.trim();
-    const text = messageInput.value.trim();
-    if (!username || !text) return;
-
-    const timestamp = new Date();
-    const timeStr = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-
-    push(messagesRef, { username, text, time: timeStr });
-    messageInput.value = "";
-  });
-
-  onChildAdded(messagesRef, (snapshot) => {
-    const msg = snapshot.val();
-    const logo = teamAvatars[msg.username] || "https://i.imgur.com/YOUR_LOGO.png";
-    const div = document.createElement("div");
-    div.classList.add("chat-message");
-    div.innerHTML = `
-      <img src="${logo}" alt="avatar">
-      <div><strong>${msg.username}:</strong> ${msg.text} <span class="timestamp">${msg.time}</span></div>
-    `;
-    chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
+    if(!currentUser)return alert('Login first!');
+    const text=messageInput.value.trim();
+    if(!text)return;
+    const username=currentUser.email.split('@')[0];
+    db.ref('messages').push({username,text,timestamp:Date.now()});
+    messageInput.value='';
   });
 </script>
 </body>

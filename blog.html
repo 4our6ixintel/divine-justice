@@ -3,69 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultimate.dls Chat Room</title>
+<title>Ultimate.dls Blog & Chat Room</title>
 <style>
-    body { font-family: Arial; background: #f4f4f4; margin: 0; }
-    header { background: #2c3e50; color: white; text-align: center; padding: 20px; }
-    nav a { color: white; margin: 0 15px; text-decoration: none; font-weight: bold; }
-    .container { width: 90%; max-width: 700px; margin: 20px auto; background: #fff; padding: 15px; border-radius: 10px; }
-    #chat-box { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #fafafa; border-radius: 5px; margin-top: 10px; }
-    .chat-message { margin-bottom: 10px; display: flex; align-items: center; }
-    .chat-message img { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; }
-    .chat-message strong { margin-right: 5px; }
-    #chat-form { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-    #username, #team, #message { flex: 1; min-width: 100px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
-    #send-btn { padding: 10px 15px; border: none; background: #2c3e50; color: white; border-radius: 5px; cursor: pointer; }
-    #send-btn:hover { background: #34495e; }
-    #whatsapp-placeholder { height: 50px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; background: #e0e0e0; border-radius: 5px; font-weight: bold; color: #2c3e50; }
+  body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; }
+  header { background: #2c3e50; color: white; text-align: center; padding: 20px; position: relative; }
+  nav a { color: white; margin: 0 10px; text-decoration: none; font-weight: bold; }
+  .container { width: 90%; max-width: 700px; margin: 20px auto; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+
+  /* Chat */
+  #chat-box { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #fafafa; border-radius: 5px; }
+  .chat-message { margin-bottom: 10px; padding: 8px; border-radius: 5px; background: #ecf0f1; display: flex; align-items: center; gap: 10px; }
+  .chat-message img { width: 35px; height: 35px; border-radius: 50%; }
+  .chat-message strong { color: #2c3e50; }
+  .timestamp { font-size: 0.8em; color: #7f8c8d; margin-left: 5px; }
+
+  #chat-form { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  #username, #message { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+  #send-btn { padding: 10px 15px; border: none; background: #2c3e50; color: white; border-radius: 5px; cursor: pointer; }
+  #send-btn:hover { background: #34495e; }
+
+  #logoutBtn { position: absolute; right: 20px; top: 20px; background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+  #logoutBtn:hover { background: #c0392b; }
+
+  /* Login Modal */
+  #loginModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 10; }
+  .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; text-align: center; }
+  input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+  button { cursor: pointer; }
+
+  /* Blog Info */
+  .blog-info { margin-bottom: 20px; text-align: center; }
+  .blog-info h2 { color: #2c3e50; margin-bottom: 10px; }
+  .blog-info p { color: #555; }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.4em; }
+    nav a { display: block; margin: 5px 0; }
+    #chat-form { flex-direction: column; }
+  }
 </style>
 </head>
 <body>
+
 <header>
-    <h1>Ultimate.dls Chat Room</h1>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="blog.html">Blog</a>
-        <a href="match.html">Matches</a>
-        <a href="tables.html">Tables</a>
-    </nav>
+  <h1>Ultimate.dls Blog & Chat Room</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="blog.html">Blog/Chat</a>
+    <a href="match.html">Matches</a>
+    <a href="tables.html">Tables</a>
+  </nav>
+  <button id="logoutBtn" style="display:none;">Logout</button>
 </header>
 
 <div class="container">
+  <div class="blog-info">
+    <h2>Welcome to the Ultimate.dls Community!</h2>
+    <p>Discuss DLS strategies, post-match reactions, and share your Ultimate Team progress with others.</p>
+    <p>Stay updated with league highlights and connect with your fellow players in real time.</p>
+  </div>
 
-    <!-- Placeholder for WhatsApp Link -->
-    <div id="whatsapp-placeholder">
-        WhatsApp Group Link Here
-    </div>
+  <div id="chat-box"></div>
+  <form id="chat-form">
+    <input type="text" id="username" placeholder="Your Team Name" required>
+    <input type="text" id="message" placeholder="Type your message" required>
+    <button type="submit" id="send-btn">Send</button>
+  </form>
+</div>
 
-    <!-- Main DLS Chat Section -->
-    <div id="chat-box"></div>
-    <form id="chat-form">
-        <input type="text" id="username" placeholder="Your Name" required>
-        <select id="team">
-            <option value="">Select Team (Optional)</option>
-            <option value="Ssali.Galaxy">Ssali.Galaxy</option>
-            <option value="kato.Jamie">kato.Jamie</option>
-            <option value="paul.liverpool">paul.liverpool</option>
-            <option value="katende.mcdamasen">katende.mcdamasen</option>
-            <option value="hytham.pagoda">hytham.pagoda</option>
-            <option value="jeremiah.ten united">jeremiah.ten united</option>
-            <option value="Bbosa.man u">Bbosa.man u</option>
-            <option value="Lusiba.AFC gunners">Lusiba.AFC gunners</option>
-            <option value="julius.man city">julius.man city</option>
-            <option value="Talemwa.talex">Talemwa.talex</option>
-        </select>
-        <input type="text" id="message" placeholder="Type a message" required>
-        <button type="submit" id="send-btn">Send</button>
-    </form>
+<!-- Login Modal -->
+<div id="loginModal">
+  <div class="modal-content">
+    <h2>Login to Ultimate.dls Chat</h2>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button id="loginBtn">Login</button>
+    <button id="signupBtn">Sign Up</button>
+  </div>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// Firebase configuration
-const firebaseConfig = {
+  // Firebase Config
+  const firebaseConfig = {
     apiKey: "AIzaSyBdK_tiTsYhX27IsdjBnBRJ1a-4Eanoe8g",
     authDomain: "ultimatedlschat.firebaseapp.com",
     databaseURL: "https://ultimatedlschat-default-rtdb.firebaseio.com",
@@ -74,72 +98,92 @@ const firebaseConfig = {
     messagingSenderId: "485655960703",
     appId: "1:485655960703:web:b6a97068cf5ebf1e98734a",
     measurementId: "G-SDE2YCCMZW"
-};
+  };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
 
-const chatBox = document.getElementById('chat-box');
-const chatForm = document.getElementById('chat-form');
-const usernameInput = document.getElementById('username');
-const teamInput = document.getElementById('team');
-const messageInput = document.getElementById('message');
+  const chatBox = document.getElementById('chat-box');
+  const chatForm = document.getElementById('chat-form');
+  const usernameInput = document.getElementById('username');
+  const messageInput = document.getElementById('message');
+  const loginModal = document.getElementById('loginModal');
+  const logoutBtn = document.getElementById('logoutBtn');
 
-const messagesRef = ref(db, "messages");
+  // Team logos (optional avatar simulation)
+  const teamAvatars = {
+    "Ssali.Galaxy": "https://i.imgur.com/YOUR_LOGO.png",
+    "kato.Jamie": "https://i.imgur.com/YOUR_LOGO.png",
+    "paul.liverpool": "https://i.imgur.com/YOUR_LOGO.png",
+    "hytham.pagoda": "https://i.imgur.com/YOUR_LOGO.png",
+  };
 
-// Team avatars and colors
-const teamData = {
-    "Ssali.Galaxy": { color: "#ff5733", avatar: "https://i.imgur.com/1Fz5m6X.png" },
-    "kato.Jamie": { color: "#33a1ff", avatar: "https://i.imgur.com/oTnYkqZ.png" },
-    "paul.liverpool": { color: "#ff3333", avatar: "https://i.imgur.com/2hGkVgP.png" },
-    "katende.mcdamasen": { color: "#33cc33", avatar: "https://i.imgur.com/3v7h0wT.png" },
-    "hytham.pagoda": { color: "#ff33ff", avatar: "https://i.imgur.com/4RkT9zD.png" },
-    "jeremiah.ten united": { color: "#ff9900", avatar: "https://i.imgur.com/5X7yYdO.png" },
-    "Bbosa.man u": { color: "#cc0000", avatar: "https://i.imgur.com/6YhF1vA.png" },
-    "Lusiba.AFC gunners": { color: "#0066ff", avatar: "https://i.imgur.com/7e0kqLT.png" },
-    "julius.man city": { color: "#00cccc", avatar: "https://i.imgur.com/8Qm3TZv.png" },
-    "Talemwa.talex": { color: "#9900cc", avatar: "https://i.imgur.com/9y5T8hS.png" },
-    "default": { color: "#2c3e50", avatar: "https://i.imgur.com/2P8mYhG.png" }
-};
+  // Auth handling
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      loginModal.style.display = "none";
+      logoutBtn.style.display = "block";
+    } else {
+      loginModal.style.display = "flex";
+      logoutBtn.style.display = "none";
+    }
+  });
 
-// Listen for new messages
-onChildAdded(messagesRef, (snapshot) => {
-    const msg = snapshot.val();
-    const div = document.createElement("div");
-    div.classList.add("chat-message");
+  logoutBtn.onclick = () => signOut(auth);
 
-    const team = teamData[msg.team] || teamData["default"];
-    const timestamp = new Date(msg.timestamp || Date.now());
-    const hours = timestamp.getHours() % 12 || 12;
-    const minutes = timestamp.getMinutes().toString().padStart(2, '0');
-    const ampm = timestamp.getHours() >= 12 ? 'PM' : 'AM';
-    const time = `${hours}:${minutes} ${ampm}`;
+  // Login
+  document.getElementById("loginBtn").onclick = async () => {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      alert("Welcome back!");
+    } catch (err) {
+      alert("Login failed: " + err.message);
+    }
+  };
 
-    div.innerHTML = `
-        <img src="${team.avatar}" alt="Avatar">
-        <span><strong style="color:${team.color}">${msg.username}</strong> [${time}]: ${msg.text}</span>
-    `;
-    chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
-});
+  // Signup
+  document.getElementById("signupBtn").onclick = async () => {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      alert("Account created! You can now log in.");
+    } catch (err) {
+      alert("Signup failed: " + err.message);
+    }
+  };
 
-// Send message
-chatForm.addEventListener("submit", (e) => {
+  // Chat functionality
+  const messagesRef = ref(db, "messages");
+
+  chatForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const username = usernameInput.value.trim();
-    const team = teamInput.value;
     const text = messageInput.value.trim();
     if (!username || !text) return;
 
-    push(messagesRef, {
-        username,
-        team,
-        text,
-        timestamp: Date.now()
-    });
+    const timestamp = new Date();
+    const timeStr = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
 
+    push(messagesRef, { username, text, time: timeStr });
     messageInput.value = "";
-});
+  });
+
+  onChildAdded(messagesRef, (snapshot) => {
+    const msg = snapshot.val();
+    const logo = teamAvatars[msg.username] || "https://i.imgur.com/YOUR_LOGO.png";
+    const div = document.createElement("div");
+    div.classList.add("chat-message");
+    div.innerHTML = `
+      <img src="${logo}" alt="avatar">
+      <div><strong>${msg.username}:</strong> ${msg.text} <span class="timestamp">${msg.time}</span></div>
+    `;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
 </script>
 </body>
 </html>

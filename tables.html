@@ -292,6 +292,50 @@
     </div>
 
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="top-btn">⬆</button>
+    <script>
+const tableBody = document.getElementById('league-body');
+
+function loadTeams() {
+  db.collection("standings").get()
+    .then(snapshot => {
+      let teams = [];
+      
+      // Collect all team data
+      snapshot.forEach(doc => {
+        teams.push(doc.data());
+      });
+
+      // Sort teams: first by points descending, then by goal difference descending
+      teams.sort((a, b) => {
+        if (b.pts !== a.pts) return b.pts - a.pts;   // points
+        return b.gd - a.gd;                          // goal difference
+      });
+
+      // Update table body
+      tableBody.innerHTML = '';
+      teams.forEach((t, index) => {
+        tableBody.innerHTML += `
+          <tr>
+            <td data-label="N.O">${index + 1}</td>
+            <td data-label="Team Name Dls">${t.name}</td>
+            <td data-label="MP">${t.mp}</td>
+            <td data-label="L">${t.l}</td>
+            <td data-label="W">${t.w}</td>
+            <td data-label="D">${t.d}</td>
+            <td data-label="Pts">${t.pts}</td>
+            <td data-label="GD">${t.gd}</td>
+            <td data-label="Stars">${t.stars}</td>
+            <td data-label="Rank">${index + 1}</td>
+          </tr>`;
+      });
+    })
+    .catch(err => console.error(err));
+}
+
+// Call this function on page load
+loadTeams();
+</script>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="firebase.js"></script>
@@ -306,7 +350,7 @@ db.collection("standings").orderBy("rank").get()
       const t = doc.data();
       tableBody.innerHTML += `
         <tr>
-          <td data-label="N.O">${t.rank}</td>
+          <td data-label="N.O">${t.position}</td>
           <td data-label="Team Name Dls">${t.name}</td>
           <td data-label="MP">${t.mp}</td>
           <td data-label="L">${t.l}</td>

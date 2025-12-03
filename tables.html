@@ -292,22 +292,20 @@
     </div>
 
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="top-btn">⬆</button>
-<!-- Firebase scripts -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="firebase.js"></script> <!-- your Firebase config -->
+<script src="firebase.js"></script>
 
 <script>
-  const tbody = document.getElementById('league-body');
+const tableBody = document.getElementById('league-body');
 
-  // Real-time Firestore listener
-  db.collection("standings").orderBy("rank", "asc")
-    .onSnapshot(snapshot => {
-      tbody.innerHTML = ''; // Clear table
-      snapshot.forEach(doc => {
-        const t = doc.data();
-        const row = document.createElement('tr');
-        row.innerHTML = `
+db.collection("standings").orderBy("rank").get()
+  .then(snapshot => {
+    tableBody.innerHTML = '';
+    snapshot.forEach(doc => {
+      const t = doc.data();
+      tableBody.innerHTML += `
+        <tr>
           <td data-label="N.O">${t.rank}</td>
           <td data-label="Team Name Dls">${t.name}</td>
           <td data-label="MP">${t.mp}</td>
@@ -318,36 +316,12 @@
           <td data-label="GD">${t.gd}</td>
           <td data-label="Stars">${t.stars}</td>
           <td data-label="Rank">${t.rank}</td>
-        `;
-        tbody.appendChild(row);
-      });
+        </tr>`;
     });
-
-  // Optional: Initial push from static table rows (if you already have them)
-  document.addEventListener('DOMContentLoaded', () => {
-    const rows = tbody.querySelectorAll('tr');
-    if (rows.length > 0) {
-      rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        const teamData = {
-          name: cells[1].textContent.trim(),
-          mp: Number(cells[2].textContent),
-          l: Number(cells[3].textContent),
-          w: Number(cells[4].textContent),
-          d: Number(cells[5].textContent),
-          pts: Number(cells[6].textContent),
-          gd: Number(cells[7].textContent),
-          stars: Number(cells[8].textContent),
-          rank: Number(cells[9].textContent)
-        };
-        const docId = teamData.name.replace(/\s|\./g, "");
-        db.collection("standings").doc(docId).set(teamData)
-          .then(() => console.log(`Saved ${teamData.name}`))
-          .catch(err => console.error(err));
-      });
-    }
-  });
+  })
+  .catch(err => console.error(err));
 </script>
+
 
 
 </body>

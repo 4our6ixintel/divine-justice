@@ -1,11 +1,9 @@
 // firebase.js
-
-// Your Firebase project configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAT_8BYUfGbf5TL2gYk7kU2OlkdPJJDsK0",
   authDomain: "admin-panel-4237d.firebaseapp.com",
   projectId: "admin-panel-4237d",
-  storageBucket: "admin-panel-4237d.appspot.com", // fix typo: .app → .appspot.com
+  storageBucket: "admin-panel-4237d.appspot.com",
   messagingSenderId: "581017219442",
   appId: "1:581017219442:web:c9743c5ec53b5c55a2edeb"
 };
@@ -13,9 +11,6 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Initialize services
-const auth = firebase.auth();
+// Firestore & Auth
 const db = firebase.firestore();
-
-// Optional: log to confirm
-console.log("Firebase initialized", auth, db);
+const auth = firebase.auth();

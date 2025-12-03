@@ -4,27 +4,11 @@
   <title>Populate Firestore</title>
 </head>
 <body>
-<h2>Populating Firestore with Teams</h2>
-
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="firebase.js"></script>
 
 <script>
-// Your Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyAT_8BYUfGbf5TL2gYk7kU2OlkdPJJDsK0",
-  authDomain: "admin-panel-4237d.firebaseapp.com",
-  projectId: "admin-panel-4237d",
-  storageBucket: "admin-panel-4237d.appspot.com",
-  messagingSenderId: "581017219442",
-  appId: "1:581017219442:web:c9743c5ec53b5c55a2edeb"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// List of teams from tables.html
 const teams = [
   { name: "Ssali.Galaxy", mp:1, l:0, w:1, d:0, pts:5, gd:0, stars:5.0, rank:78 },
   { name: "kato.Jamie", mp:1, l:0, w:1, d:0, pts:5, gd:0, stars:5.0, rank:0 },
@@ -38,11 +22,10 @@ const teams = [
   { name: "Talemwa.talex", mp:0, l:0, w:0, d:0, pts:0, gd:0, stars:4.0, rank:0 }
 ];
 
-// Add each team to Firestore
 teams.forEach(team => {
   db.collection("standings").doc(team.name).set(team)
     .then(() => console.log(`Added ${team.name}`))
-    .catch(err => console.error(`Error adding ${team.name}:`, err));
+    .catch(err => console.error(err));
 });
 </script>
 </body>

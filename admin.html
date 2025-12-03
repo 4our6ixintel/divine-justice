@@ -156,7 +156,8 @@
     mp.value = l.value = w.value = d.value = pts.value = gd.value = stars.value = rank.value = '';
   }
 </script>
-// Get all table rows
+<script>
+  // Get all table rows
 const rows = document.querySelectorAll("#league-body tr");
 
 rows.forEach(row => {
@@ -179,5 +180,6 @@ rows.forEach(row => {
     .catch(err => console.error(err));
 });
 
+</script>
 </body>
 </html>

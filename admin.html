@@ -10,10 +10,9 @@
     h2 { margin-bottom:10px; }
   </style>
 </head>
-
 <body>
 
-<div class="box" id="loginBox">
+<div class="box">
   <h2>Admin Login</h2>
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
@@ -40,122 +39,97 @@
   <button style="background:#e74c3c; color:#fff;" onclick="deleteTeam()">Delete Team</button>
 </div>
 
+<!-- Firebase scripts -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="firebase.js"></script>
-  <script src="populate.js"></script>
 
 <script>
-  // DOM Elements
-  const emailInput = document.getElementById("email");
-  const passwordInput = document.getElementById("password");
-  const loginBox = document.getElementById("loginBox");
-  const editorBox = document.getElementById("editor");
+// LOGIN FUNCTION
+function login() {
+  const emailValue = document.getElementById("email").value;
+  const passwordValue = document.getElementById("password").value;
 
-  const teamSelect = document.getElementById("teamSelect");
-  const mp = document.getElementById("mp");
-  const l = document.getElementById("l");
-  const w = document.getElementById("w");
-  const d = document.getElementById("d");
-  const pts = document.getElementById("pts");
-  const gd = document.getElementById("gd");
-  const stars = document.getElementById("stars");
-  const rank = document.getElementById("rank");
+  auth.signInWithEmailAndPassword(emailValue, passwordValue)
+    .then(() => {
+      alert("Logged In Successfully!");
+      document.getElementById("editor").style.display = "block";
+      loadTeams();
+    })
+    .catch(e => alert("Login Error: " + e.message));
+}
 
-  let currentID = null;
+// LOAD TEAMS INTO DROPDOWN
+function loadTeams() {
+  db.collection("standings").get()
+    .then(snapshot => {
+      const select = document.getElementById("teamSelect");
+      select.innerHTML = `<option value="">Select Team</option>`;
+      snapshot.forEach(doc => {
+        select.innerHTML += `<option value="${doc.id}">${doc.data().name}</option>`;
+      });
+    })
+    .catch(e => console.error(e));
+}
 
-  // LOGIN
-  function login() {
-    auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value)
-      .then(() => {
-        alert("Logged In");
-        loginBox.style.display = "none";
-        editorBox.style.display = "block";
-        loadTeams();
-      })
-      .catch(e => alert("Login failed: " + e.message));
-  }
+let currentID = null;
 
-  // LOAD TEAMS
-  function loadTeams() {
-    db.collection("standings").get()
-      .then(snapshot => {
-        teamSelect.innerHTML = `<option value="">Select Team</option>`;
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          teamSelect.innerHTML += `<option value="${doc.id}">${data.name}</option>`;
-        });
-        clearForm();
-      })
-      .catch(e => alert("Error loading teams: " + e.message));
-  }
+// LOAD TEAM DETAILS WHEN SELECTED
+function loadTeam() {
+  const id = document.getElementById("teamSelect").value;
+  if (!id) return;
 
-  // LOAD SELECTED TEAM
-  function loadTeam() {
-    const id = teamSelect.value;
-    if (!id) {
-      clearForm();
-      return;
-    }
+  currentID = id;
 
-    currentID = id;
+  db.collection("standings").doc(id).get()
+    .then(doc => {
+      if (!doc.exists) return alert("Team not found!");
+      const t = doc.data();
+      document.getElementById("mp").value = t.mp || 0;
+      document.getElementById("l").value = t.l || 0;
+      document.getElementById("w").value = t.w || 0;
+      document.getElementById("d").value = t.d || 0;
+      document.getElementById("pts").value = t.pts || 0;
+      document.getElementById("gd").value = t.gd || 0;
+      document.getElementById("stars").value = t.stars || 0;
+      document.getElementById("rank").value = t.rank || 0;
+    })
+    .catch(e => console.error(e));
+}
 
-    db.collection("standings").doc(id).get()
-      .then(doc => {
-        if (!doc.exists) return alert("Team not found!");
-        const t = doc.data();
-        mp.value = t.mp ?? 0;
-        l.value = t.l ?? 0;
-        w.value = t.w ?? 0;
-        d.value = t.d ?? 0;
-        pts.value = t.pts ?? 0;
-        gd.value = t.gd ?? 0;
-        stars.value = t.stars ?? 0;
-        rank.value = t.rank ?? 0;
-      })
-      .catch(e => alert("Error loading team: " + e.message));
-  }
+// SAVE CHANGES TO FIRESTORE
+function saveTeam() {
+  if (!currentID) return alert("Select a team first!");
 
-  // SAVE TEAM
-  function saveTeam() {
-    if (!currentID) return alert("Please select a team first.");
+  db.collection("standings").doc(currentID).set({
+    name: currentID,
+    mp: Number(document.getElementById("mp").value),
+    l: Number(document.getElementById("l").value),
+    w: Number(document.getElementById("w").value),
+    d: Number(document.getElementById("d").value),
+    pts: Number(document.getElementById("pts").value),
+    gd: Number(document.getElementById("gd").value),
+    stars: Number(document.getElementById("stars").value),
+    rank: Number(document.getElementById("rank").value)
+  })
+  .then(() => alert("Team Updated!"))
+  .catch(e => console.error(e));
+}
 
-    const data = {
-      name: currentID,
-      mp: Number(mp.value),
-      l: Number(l.value),
-      w: Number(w.value),
-      d: Number(d.value),
-      pts: Number(pts.value),
-      gd: Number(gd.value),
-      stars: Number(stars.value),
-      rank: Number(rank.value)
-    };
+// DELETE TEAM
+function deleteTeam() {
+  if (!currentID) return alert("Select a team first!");
+  if (!confirm("Delete this team?")) return;
 
-    db.collection("standings").doc(currentID).set(data, { merge: true })
-      .then(() => alert("Team Updated!"))
-      .catch(e => alert("Error saving team: " + e.message));
-  }
-
-  // DELETE TEAM
-  function deleteTeam() {
-    if (!currentID) return alert("Please select a team first.");
-    if (!confirm("Delete this team?")) return;
-
-    db.collection("standings").doc(currentID).delete()
-      .then(() => {
-        alert("Team Deleted");
-        loadTeams();
-      })
-      .catch(e => alert("Error deleting team: " + e.message));
-  }
-
-  // CLEAR FORM
-  function clearForm() {
-    currentID = null;
-    mp.value = l.value = w.value = d.value = pts.value = gd.value = stars.value = rank.value = '';
-  }
+  db.collection("standings").doc(currentID).delete()
+    .then(() => {
+      alert("Team Deleted!");
+      loadTeams();
+    })
+    .catch(e => console.error(e));
+}
 </script>
+
 </body>
 </html>

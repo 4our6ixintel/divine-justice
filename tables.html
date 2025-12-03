@@ -166,7 +166,7 @@
                     <th>Rank</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="league-body">
                 <tr>
                     <td data-label="N.O">1</td>
                     <td data-label="Team Name Dls">Ssali.Galaxy</td>
@@ -292,6 +292,40 @@
     </div>
 
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="top-btn">⬆</button>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="firebase.js"></script>
+
+<script>
+db.collection("standings")
+  .orderBy("rank", "asc")
+  .onSnapshot(snapshot => {
+    const tbody = document.getElementById("league-body");
+    tbody.innerHTML = "";
+    let number = 1;
+
+    snapshot.forEach(doc => {
+      const t = doc.data();
+
+      const row = `
+        <tr>
+          <td data-label="N.O">${number++}</td>
+          <td data-label="Team Name Dls">${t.name}</td>
+          <td data-label="MP">${t.mp}</td>
+          <td data-label="L">${t.l}</td>
+          <td data-label="W">${t.w}</td>
+          <td data-label="D">${t.d}</td>
+          <td data-label="Pts">${t.pts}</td>
+          <td data-label="GD">${t.gd}</td>
+          <td data-label="Stars">${t.stars}</td>
+          <td data-label="Rank">${t.rank}</td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+});
+</script>
+
 </body>
 
 </html>

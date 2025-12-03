@@ -46,6 +46,26 @@
 <script src="firebase.js"></script>
 
 <script>
+  function saveTeam() {
+  if (!currentID) return alert("Select a team first");
+
+  db.collection("standings").doc(currentID).set({
+    name: currentID,
+    mp: Number(document.getElementById('mp').value),
+    l: Number(document.getElementById('l').value),
+    w: Number(document.getElementById('w').value),
+    d: Number(document.getElementById('d').value),
+    pts: Number(document.getElementById('pts').value),
+    gd: Number(document.getElementById('gd').value),
+    stars: Number(document.getElementById('stars').value),
+    rank: Number(document.getElementById('rank').value)
+  }).then(() => alert("Team Updated!"))
+    .catch(err => alert(err.message));
+}
+
+</script>
+  
+<script>
 // LOGIN FUNCTION
 function login() {
   const emailValue = document.getElementById("email").value;

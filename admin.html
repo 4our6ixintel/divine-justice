@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+    .box { background:#fff; padding:20px; border-radius:8px; width:300px; margin-bottom:20px; }
+    input, select { width:100%; padding:8px; margin:6px 0; }
+    button { padding:10px; width:100%; margin-top:10px; cursor:pointer; }
+    h2 { margin-bottom:10px; }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>Admin Login</h2>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+</div>
+
+<div class="box" id="editor" style="display:none;">
+  <h2>Edit Team</h2>
+
+  <select id="teamSelect" onchange="loadTeam()">
+    <option value="">Select Team</option>
+  </select>
+
+  <input id="mp" type="number" placeholder="Matches Played">
+  <input id="l" type="number" placeholder="Losses">
+  <input id="w" type="number" placeholder="Wins">
+  <input id="d" type="number" placeholder="Draws">
+  <input id="pts" type="number" placeholder="Points">
+  <input id="gd" type="number" placeholder="Goal Difference">
+  <input id="stars" type="number" step="0.5" placeholder="Stars">
+  <input id="rank" type="number" placeholder="Rank">
+
+  <button onclick="saveTeam()">Save Changes</button>
+  <button style="background:#e74c3c; color:#fff;" onclick="deleteTeam()">Delete Team</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="firebase.js"></script>
+
+<script>
+function login() {
+  auth.signInWithEmailAndPassword(email.value, password.value)
+    .then(() => {
+      alert("Logged In");
+      document.getElementById("editor").style.display = "block";
+      loadTeams();
+    })
+    .catch(e => alert(e.message));
+}
+
+function loadTeams() {
+  db.collection("standings").get().then(snapshot => {
+    const select = document.getElementById("teamSelect");
+    select.innerHTML = `<option value="">Select Team</option>`;
+    snapshot.forEach(doc => {
+      select.innerHTML += `<option value="${doc.id}">${doc.data().name}</option>`;
+    });
+  });
+}
+
+let currentID = null;
+
+function loadTeam() {
+  const id = teamSelect.value;
+  if (!id) return;
+
+  currentID = id;
+
+  db.collection("standings").doc(id).get().then(doc => {
+    const t = doc.data();
+    mp.value = t.mp;
+    l.value = t.l;
+    w.value = t.w;
+    d.value = t.d;
+    pts.value = t.pts;
+    gd.value = t.gd;
+    stars.value = t.stars;
+    rank.value = t.rank;
+  });
+}
+
+function saveTeam() {
+  db.collection("standings").doc(currentID).set({
+    name: currentID,
+    mp: Number(mp.value),
+    l: Number(l.value),
+    w: Number(w.value),
+    d: Number(d.value),
+    pts: Number(pts.value),
+    gd: Number(gd.value),
+    stars: Number(stars.value),
+    rank: Number(rank.value)
+  }).then(() => alert("Team Updated!"));
+}
+
+function deleteTeam() {
+  if (!confirm("Delete this team?")) return;
+
+  db.collection("standings").doc(currentID).delete()
+    .then(() => {
+      alert("Team Deleted");
+      loadTeams();
+    });
+}
+</script>
+
+</body>
+</html>

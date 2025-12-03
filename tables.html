@@ -292,37 +292,60 @@
     </div>
 
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="top-btn">⬆</button>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<!-- Firebase scripts -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="firebase.js"></script> <!-- your Firebase config -->
 
 <script>
-  const tableBody = document.getElementById('league-body'); // your table's tbody
-  const rows = tableBody.querySelectorAll('tr');
+  const tbody = document.getElementById('league-body');
 
-  rows.forEach(row => {
-    const cells = row.querySelectorAll('td');
+  // Real-time Firestore listener
+  db.collection("standings").orderBy("rank", "asc")
+    .onSnapshot(snapshot => {
+      tbody.innerHTML = ''; // Clear table
+      snapshot.forEach(doc => {
+        const t = doc.data();
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td data-label="N.O">${t.rank}</td>
+          <td data-label="Team Name Dls">${t.name}</td>
+          <td data-label="MP">${t.mp}</td>
+          <td data-label="L">${t.l}</td>
+          <td data-label="W">${t.w}</td>
+          <td data-label="D">${t.d}</td>
+          <td data-label="Pts">${t.pts}</td>
+          <td data-label="GD">${t.gd}</td>
+          <td data-label="Stars">${t.stars}</td>
+          <td data-label="Rank">${t.rank}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    });
 
-    // Map each cell to a field
-    const teamData = {
-      name: cells[1].textContent.trim(),
-      mp: Number(cells[2].textContent),
-      l: Number(cells[3].textContent),
-      w: Number(cells[4].textContent),
-      d: Number(cells[5].textContent),
-      pts: Number(cells[6].textContent),
-      gd: Number(cells[7].textContent),
-      stars: Number(cells[8].textContent),
-      rank: Number(cells[9].textContent)
-    };
-
-    // Generate a safe Firestore ID
-    const docId = teamData.name.replace(/\s|\./g, "");
-
-    // Save to Firestore
-    db.collection("standings").doc(docId).set(teamData)
-      .then(() => console.log(`Saved ${teamData.name}`))
-      .catch(err => console.error(err));
+  // Optional: Initial push from static table rows (if you already have them)
+  document.addEventListener('DOMContentLoaded', () => {
+    const rows = tbody.querySelectorAll('tr');
+    if (rows.length > 0) {
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const teamData = {
+          name: cells[1].textContent.trim(),
+          mp: Number(cells[2].textContent),
+          l: Number(cells[3].textContent),
+          w: Number(cells[4].textContent),
+          d: Number(cells[5].textContent),
+          pts: Number(cells[6].textContent),
+          gd: Number(cells[7].textContent),
+          stars: Number(cells[8].textContent),
+          rank: Number(cells[9].textContent)
+        };
+        const docId = teamData.name.replace(/\s|\./g, "");
+        db.collection("standings").doc(docId).set(teamData)
+          .then(() => console.log(`Saved ${teamData.name}`))
+          .catch(err => console.error(err));
+      });
+    }
   });
 </script>
 

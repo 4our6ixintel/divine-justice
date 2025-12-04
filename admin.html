@@ -1,133 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Admin Panel</title>
-  <style>
-    body { font-family: Arial; padding: 20px; background: #f4f4f4; }
-    .box { background:#fff; padding:20px; border-radius:8px; width:300px; margin-bottom:20px; }
-    input, select { width:100%; padding:8px; margin:6px 0; }
-    button { padding:10px; width:100%; margin-top:10px; cursor:pointer; }
-    h2 { margin-bottom:10px; }
-  </style>
+<meta charset="UTF-8">
+<title>Admin Panel</title>
+<style>
+body { font-family: Arial; background:#f4f4f4; padding:20px; text-align: center; margin: auto;}
+input { width: 250px; padding:8px; margin:5px; }
+button { padding:10px 20px; background:#2c3e50; color:white; border:none; }
+</style>
 </head>
+
 <body>
+<h2>ADMIN – Update Standings</h2>
 
-<div class="box">
-  <h2>Admin Login</h2>
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-  <button onclick="login()">Login</button>
-</div>
+<input id="name" placeholder="Team Name"><br>
+<input id="mp" placeholder="Matches Played" type="number"><br>
+<input id="w" placeholder="Wins" type="number"><br>
+<input id="l" placeholder="Losses" type="number"><br>
+<input id="d" placeholder="Draws" type="number"><br>
+<input id="pts" placeholder="Points" type="number"><br>
+<input id="gd" placeholder="Goal Difference" type="number"><br>
+<input id="stars" placeholder="Stars" type="number" step="0.1"><br>
+<input id="rank" placeholder="Rank" type="number"><br>
 
-<div class="box" id="editor" style="display:none;">
-  <h2>Edit Team</h2>
+<button onclick="saveData()">Save / Update</button>
 
-  <select id="teamSelect" onchange="loadTeam()">
-    <option value="">Select Team</option>
-  </select>
-
-  <input id="mp" type="number" placeholder="Matches Played">
-  <input id="l" type="number" placeholder="Losses">
-  <input id="w" type="number" placeholder="Wins">
-  <input id="d" type="number" placeholder="Draws">
-  <input id="pts" type="number" placeholder="Points">
-  <input id="gd" type="number" placeholder="Goal Difference">
-  <input id="stars" type="number" step="0.5" placeholder="Stars">
-  <input id="rank" type="number" placeholder="Rank">
-
-  <button onclick="saveTeam()">Save Changes</button>
-  <button style="background:#e74c3c; color:#fff;" onclick="deleteTeam()">Delete Team</button>
-</div>
-
-<!-- Firebase scripts -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="firebase.js"></script>
 
 <script>
-let currentID = null;
+function saveData() {
+    let team = {
+        name: document.getElementById("name").value.trim(),
+        mp: Number(document.getElementById("mp").value),
+        w: Number(document.getElementById("w").value),
+        l: Number(document.getElementById("l").value),
+        d: Number(document.getElementById("d").value),
+        pts: Number(document.getElementById("pts").value),
+        gd: Number(document.getElementById("gd").value),
+        stars: Number(document.getElementById("stars").value),
+        rank: Number(document.getElementById("rank").value)
+    };
 
-// LOGIN
-function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+    if (!team.name) {
+        alert("Team name required");
+        return;
+    }
 
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => {
-      alert("Logged In Successfully!");
-      document.getElementById("editor").style.display = "block";
-      loadTeams();
-    })
-    .catch(e => alert("Login Error: " + e.message));
-}
+    // Document ID based on name (consistent)
+    let docId = team.name.toLowerCase().replace(/\s+/g, "-");
 
-// LOAD TEAMS INTO DROPDOWN
-function loadTeams() {
-  db.collection("standings").get()
-    .then(snapshot => {
-      const select = document.getElementById("teamSelect");
-      select.innerHTML = `<option value="">Select Team</option>`;
-      snapshot.forEach(doc => {
-        select.innerHTML += `<option value="${doc.id}">${doc.data().name}</option>`;
-      });
-    })
-    .catch(e => console.error("Load Teams Error:", e));
-}
-
-// LOAD TEAM DETAILS
-function loadTeam() {
-  const id = document.getElementById("teamSelect").value;
-  if (!id) return;
-
-  currentID = id;
-
-  db.collection("standings").doc(id).get()
-    .then(doc => {
-      if (!doc.exists) return alert("Team not found!");
-      const t = doc.data();
-      document.getElementById("mp").value = t.mp || 0;
-      document.getElementById("l").value = t.l || 0;
-      document.getElementById("w").value = t.w || 0;
-      document.getElementById("d").value = t.d || 0;
-      document.getElementById("pts").value = t.pts || 0;
-      document.getElementById("gd").value = t.gd || 0;
-      document.getElementById("stars").value = t.stars || 0;
-      document.getElementById("rank").value = t.rank || 0;
-    })
-    .catch(e => console.error("Load Team Error:", e));
-}
-
-// SAVE TEAM
-function saveTeam() {
-  if (!currentID) return alert("Select a team first!");
-
-  db.collection("standings").doc(currentID).set({
-    name: currentID,
-    mp: Number(document.getElementById("mp").value),
-    l: Number(document.getElementById("l").value),
-    w: Number(document.getElementById("w").value),
-    d: Number(document.getElementById("d").value),
-    pts: Number(document.getElementById("pts").value),
-    gd: Number(document.getElementById("gd").value),
-    stars: Number(document.getElementById("stars").value),
-    rank: Number(document.getElementById("rank").value)
-  })
-  .then(() => alert("Team Updated!"))
-  .catch(e => console.error("Save Team Error:", e));
-}
-
-// DELETE TEAM
-function deleteTeam() {
-  if (!currentID) return alert("Select a team first!");
-  if (!confirm("Delete this team?")) return;
-
-  db.collection("standings").doc(currentID).delete()
-    .then(() => {
-      alert("Team Deleted!");
-      loadTeams();
-    })
-    .catch(e => console.error("Delete Team Error:", e));
+    db.collection("standings").doc(docId).set(team)
+    .then(() => alert("Saved Successfully"))
+    .catch(err => alert("Error: " + err));
 }
 </script>
 
